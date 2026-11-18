@@ -1,0 +1,11 @@
+.DS_Store
+
+# Arduino and PlatformIO build output
+build/
+.pio/
+
+# Compiled firmware artifacts
+*.elf
+*.hex
+*.bin
+*.map
