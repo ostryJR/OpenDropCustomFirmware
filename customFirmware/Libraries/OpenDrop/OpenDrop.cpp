@@ -1337,7 +1337,6 @@ int f=AC_frequency;
 int menu_position=1;
 bool AC_state=AC_flag;
 bool confirm=false;
-bool set_confirm=false;
 bool set_feedback=feedback;
 bool set_sound=sound;
 bool nav_release=true;
@@ -1372,25 +1371,17 @@ if (set_feedback==true)
   display.print("FEEDBACK: ON"); else
   display.print("FEEDBACK: OFF");
 
-if (!set_confirm){
 display.setCursor(15,55);
-display.println("SET:      CANCEL");
-}
-else 
-{
-display.setCursor(15,55);
-display.println("SET:      OK");
-}
+display.print("EXIT: PRESS BUTTON");
 
 display.setCursor(0,10*menu_position-8);
-if (menu_position==6)display.setCursor(0,55);
   display.print(">");
   display.display();
 
 JOY_value = analogRead(JOY_pin);
 
-if ((JOY_value>725)&&(JOY_value<895)&&(menu_position>1)&&(nav_release)) {menu_position--;nav_release=false;set_confirm=false;}
-if ((JOY_value>256)&&(JOY_value<597)&&(menu_position<6)&&(nav_release)) {menu_position++;nav_release=false;}
+if ((JOY_value>725)&&(JOY_value<895)&&(menu_position>1)&&(nav_release)) {menu_position--;nav_release=false;}
+if ((JOY_value>256)&&(JOY_value<597)&&(menu_position<5)&&(nav_release)) {menu_position++;nav_release=false;}
 if (JOY_value>950) nav_release=true;
 if (digitalRead(SW1_pin)) but_release=true;
 if (!digitalRead(SW1_pin)&&but_release) confirm=true;
@@ -1410,47 +1401,59 @@ break;
 case 3:
 if  ((JOY_value>600)&&(JOY_value<730)&&(f>100)) f=f-50;
 if  ((JOY_value<300)&&(f<1000)) f=f+50;
-
 break;
 
 case 4:
 if  (JOY_value<300) set_sound=false;
 if  ((JOY_value>600)&&(JOY_value<730)) set_sound=true;
-
 break;
 
 case 5:
 if  (JOY_value<300) set_feedback=true;
 if  ((JOY_value>600)&&(JOY_value<730)) set_feedback=false;
-
 break;
 
-case 6:
-if  (JOY_value<300) set_confirm=true;
-if  ((JOY_value>600)&&(JOY_value<730)) set_confirm=false;
-if (!digitalRead(SW3_pin)) confirm=true;
-break;
-
-
-break;
   default:
   break;
 }
 
  }
-if (set_confirm) {
+
+// On exit: ask whether to save, but only if something was changed
+bool changed = (AC_state!=AC_flag) || (v!=Voltage_set) || (f!=(int)AC_frequency) ||
+               (set_sound!=sound) || (set_feedback!=feedback);
+bool save=true;                              // YES preselected
+
+if (changed) {
+  while(!digitalRead(SW1_pin));              // wait until the exit press is released
+  delay(50);                                 // debounce
+  while (true) {
+    display.clearDisplay();
+    display.setTextColor(WHITE,BLACK);
+    display.setCursor(22,14);
+    display.print("SAVE SETTINGS?");
+    display.fillRect(save ? 20 : 76, 34, 32, 14, 1);   // highlight selected option
+    display.setTextColor(save ? BLACK : WHITE);
+    display.setCursor(27,38); display.print("YES");
+    display.setTextColor(save ? WHITE : BLACK);
+    display.setCursor(86,38); display.print("NO");
+    display.setTextColor(WHITE);
+    display.display();
+
+    JOY_value = analogRead(JOY_pin);
+    if ((JOY_value>600)&&(JOY_value<730)) save=true;    // joystick left  -> YES
+    if (JOY_value<300) save=false;                      // joystick right -> NO
+    if (!digitalRead(SW1_pin)) break;                   // button -> confirm choice
+  }
+}
+
+if (changed && save) {
     theOpenDrop.set_voltage(v,AC_state,f);
-	sound = set_sound; 
-	feedback=set_feedback;
-	settings.value[0]=AC_state;
-	if(v<=240)settings.value[1]=v; else settings.value[1]=240;
-	settings.value[2]=f;
-	settings.value[3]=set_sound;
-	settings.value[4]=set_feedback;
-	my_flash_store.write(settings);
-	
-	HV_set_ok=false;
-	 }
+    sound = set_sound;
+    feedback = set_feedback;
+    theOpenDrop.save_settings();             // writes flash (voltage clamped to 240 V)
+    HV_set_ok=false;
+    }
  while(!digitalRead(SW1_pin));
 }
 
