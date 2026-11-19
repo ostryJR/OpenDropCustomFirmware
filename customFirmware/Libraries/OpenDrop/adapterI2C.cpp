@@ -1,6 +1,10 @@
 /*--------------------------------------------------------------------
-  This file is part of the OpenDrop library
-  by Urs Gaudenz, GaudiLabs 2022
+  This file was originally part of the OpenDrop library
+  by Urs Gaudenz, GaudiLabs 2022.
+
+  This custom version is maintained by Mikolaj Ostrowski (nanoSYD,
+  Syddansk Universitet / University of Southern Denmark), not by GaudiLabs.
+  mikolaj.p.ostrowski@gmail.com - github.com/ostryJR
   --------------------------------------------------------------------*/
 
 #include <Wire.h>

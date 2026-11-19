@@ -1,11 +1,14 @@
 /*
-  Basic Code to run the OpenDrop V4.1, Research platfrom for digital microfluidics
-  Object codes are defined in the OpenDrop.h library
-  Written by Urs Gaudenz from GaudiLabs, 2021
+  Code to run the OpenDrop V4.2, research platform for digital microfluidics.
+  Object code is defined in the OpenDrop.h library.
+  This sketch was originally part of the GaudiLabs OpenDrop firmware,
+  written by Urs Gaudenz from GaudiLabs, 2021.
 
-  Custom version developed by nanoSYD, Syddansk Universitet (University of Southern Denmark)
-  by Mikolaj Ostrowski - mikolaj.p.ostrowski@gmail.com - github.com/ostryJR
-  (serial control of HV/feedback/messages, flash save, menu save prompt, boot screens, sounds)
+  This custom version is maintained by Mikolaj Ostrowski (nanoSYD,
+  Syddansk Universitet / University of Southern Denmark), not by GaudiLabs.
+  mikolaj.p.ostrowski@gmail.com - github.com/ostryJR
+  (serial control of HV/feedback/messages, flash save, menu save prompt,
+  serial during menu, boot screens, sounds)
 */
 
 #include <SPI.h>
