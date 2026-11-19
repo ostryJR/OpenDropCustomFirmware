@@ -725,6 +725,8 @@ void OpenDrop::begin(const char code_str[]) {
   display.setTextColor(WHITE);
   display.print(version_str);
   display.println(code_str);
+  display.setCursor(7,45);                 // free area under "WELCOME" on the splash
+  display.print("MODIFIED FW");
 
   display.display();
  
@@ -742,11 +744,24 @@ void OpenDrop::begin(const char code_str[]) {
    display.display(); 
  
   
-  delay(400);
+  delay(1200);                             // show the OpenDrop splash a bit longer
 
   // Clear the buffer.
   display.clearDisplay();
   display.dim(false);
+
+  // Second boot screen: nanoSYD credit (stays up until the first update_Display)
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+  display.setCursor(13,2);   display.print("MODIFIED FIRMWARE");
+  display.setCursor(28,12);  display.print("developed by");
+  display.setTextSize(2);
+  display.setCursor(22,22);  display.print("nanoSYD");
+  display.setTextSize(1);
+  display.setCursor(4,42);   display.print("Use nanoSYD software");
+  display.setCursor(10,54);  display.print("github.com/ostryJR");
+  display.display();
+  display.clearDisplay();                  // buffer only; screen keeps showing it
 
 
 this->set_joy(1,0);
