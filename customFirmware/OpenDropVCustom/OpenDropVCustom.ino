@@ -63,7 +63,7 @@ void setup() {
                 
   OpenDropAudio.begin(16000);
   OpenDropAudio.playMe(2);
-  delay (2000);
+  delay (3500);                       // nanoSYD boot screen stays up during this
  
   OpenDropDevice.drive_Fluxels();
   OpenDropDevice.update_Display();

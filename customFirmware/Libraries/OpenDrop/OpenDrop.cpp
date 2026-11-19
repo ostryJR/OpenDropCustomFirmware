@@ -744,7 +744,7 @@ void OpenDrop::begin(const char code_str[]) {
    display.display(); 
  
   
-  delay(1200);                             // show the OpenDrop splash a bit longer
+  delay(2500);                             // show the OpenDrop splash longer
 
   // Clear the buffer.
   display.clearDisplay();
