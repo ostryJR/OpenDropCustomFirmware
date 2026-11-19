@@ -48,6 +48,7 @@ long VOLTAGE_set_value;
 
 bool sound=sound_flag;
 bool feedback=feedback_flag;
+static char msg_text[21] = "";   // remote message banner, max 20 chars
 
 
 
@@ -416,6 +417,15 @@ display.drawBitmap(106,45,bitmap2,24,19,1);
 
  // display.drawRect(22, 16, 85,48, 1);
 
+
+// Remote message banner (drawn before warnings so they take priority)
+if (msg_text[0]) {
+  display.fillRect(4, 33, 121, 12, 1);
+  display.setTextColor(0);
+  display.setCursor(4 + (121 - 6 * strlen(msg_text)) / 2, 36);
+  display.print(msg_text);
+  display.setTextColor(1);
+}
 
 // Read SensPad
 if (digitalRead(SENSPAD_pin))
@@ -1036,6 +1046,27 @@ tcConfigure(AC_frequency); //configure the timer to run at <sampleRate>Hertz
  spi_out(VCS_pin, cmd_byte0, VOLTAGE_set_value); // Set Voltage Level / send out data to chip 1, pot 0
 Voltage_set=voltage;
 AC_flag=AC_on;
+}
+
+void OpenDrop::save_settings(void)
+{
+  int v = (Voltage_set <= 240) ? Voltage_set : 240;   // same clamp as Menu()
+  if (settings.value[0] == AC_flag && settings.value[1] == v &&
+      settings.value[2] == (int)AC_frequency && settings.value[3] == sound &&
+      settings.value[4] == feedback) return;           // nothing changed -> no flash write
+  settings.value[0] = AC_flag;
+  settings.value[1] = v;
+  settings.value[2] = AC_frequency;
+  settings.value[3] = sound;
+  settings.value[4] = feedback;
+  settings.value[5] = 1;                               // keep "initialised" marker
+  my_flash_store.write(settings);
+}
+
+void OpenDrop::show_message(const char *text)
+{
+  strncpy(msg_text, text, 20);
+  msg_text[20] = 0;
 }
 
 

@@ -41,7 +41,12 @@ bool idle=true;
 bool Magnet1_state=false;
 bool Magnet2_state=false;
 
-int j=0; 
+int j=0;
+
+extern uint16_t Voltage_set;   // from OpenDrop.cpp
+extern uint32_t AC_frequency;
+extern boolean  AC_flag;
+extern boolean  HV_set_ok;
   
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -83,7 +88,15 @@ void loop() {
        x++;
     digitalWrite(LED_Rx_pin,HIGH); 
        if (x==(FluxlPad_width+16))
-        {OpenDropDevice.set_Fluxels(FluxCom);
+        {
+         if (ControlBytesIn[1] == 255) OpenDropDevice.show_message("");   // clear message
+         else if (ControlBytesIn[1] > 0) {                               // N text bytes follow the frame
+           char msg[255];
+           int n = Serial.readBytes(msg, ControlBytesIn[1]);             // 1 s timeout
+           msg[n] = 0;
+           OpenDropDevice.show_message(msg);
+         }
+         OpenDropDevice.set_Fluxels(FluxCom);
          OpenDropDevice.drive_Fluxels();
          OpenDropDevice.update_Display();
 
@@ -119,6 +132,16 @@ void loop() {
          OpenDropDevice.set_Temp_3(ControlBytesIn[12]);
          
          OpenDropDevice.show_feedback(ControlBytesIn[8]);
+
+         // Remote HV settings: [13]=volts, [14]=Hz/10, [15]=1 DC / 2 AC; 0 = keep current
+         uint16_t new_v  = ControlBytesIn[13] ? constrain(ControlBytesIn[13], 50, 240) : Voltage_set;
+         uint16_t new_f  = ControlBytesIn[14] ? constrain(ControlBytesIn[14]*10, 100, 1000) : AC_frequency;
+         bool     new_ac = ControlBytesIn[15] ? (ControlBytesIn[15] == 2) : AC_flag;
+         if (new_v != Voltage_set || new_f != AC_frequency || new_ac != AC_flag) {
+           OpenDropDevice.set_voltage(new_v, new_ac, new_f);
+           HV_set_ok = false;   // same as Menu(): avoid false UNDER VOLTAGE while HV settles
+         }
+         if (ControlBytesIn[9] == 1) OpenDropDevice.save_settings();   // "Save to device" from app
          
          ControlBytesOut[17]=OpenDropDevice.get_Temp_L_1();
          ControlBytesOut[18]=OpenDropDevice.get_Temp_H_1();

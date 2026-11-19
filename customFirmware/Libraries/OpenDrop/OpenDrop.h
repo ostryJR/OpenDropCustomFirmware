@@ -79,6 +79,8 @@ class OpenDrop
   void show_joy(boolean val);
   void show_feedback(boolean val);
   void set_voltage(uint16_t voltage, bool AC_on,uint16_t frequence);
+  void save_settings(void);   // write current HV/sound/feedback to flash if changed
+  void show_message(const char *text);   // banner text on OLED, "" clears
   void set_Pin(uint8_t pin, boolean val);
   void set_Magnet(uint8_t magnet, bool state);
   uint8_t get_ID(void);
