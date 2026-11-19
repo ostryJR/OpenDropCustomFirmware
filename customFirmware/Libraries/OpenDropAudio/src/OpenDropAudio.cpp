@@ -56,18 +56,9 @@ void OpenDropAudioClass::end() {
 void OpenDropAudioClass::playMe(uint8_t soundNo) {
 
 switch (soundNo) {
-  case 1:
-       __WavSamples=sound1;
-	__NumberOfSamples = 8977;	//samples to read to have a buffer
-
-    break;
-  case 2:
-       __WavSamples=sound2;
-	__NumberOfSamples = 18977;	//samples to read to have a buffer
-    break;
-  default:
-       __WavSamples=sound3;
-	__NumberOfSamples = 500;	//samples to read to have a buffer
+  case 1:  __WavSamples = sound1; __NumberOfSamples = sizeof(sound1); break;   // menu
+  case 2:  __WavSamples = sound2; __NumberOfSamples = sizeof(sound2); break;   // startup
+  default: __WavSamples = sound3; __NumberOfSamples = sizeof(sound3);          // drop move
 }
 
 
