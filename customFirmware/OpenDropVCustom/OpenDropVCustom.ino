@@ -22,6 +22,12 @@
 
 #include "hardware_def.h"
 
+// Firmware version - Semantic Versioning (MAJOR.MINOR.PATCH), see CLAUDE.md
+//   MAJOR: serial protocol change that breaks older apps
+//   MINOR: new compatible feature, PATCH: bug fix
+#define FW_VERSION  "1.0.0"
+#define FW_UPSTREAM "gaudi.42.11"      // GaudiLabs OpenDrop version this fork is based on
+
 
 OpenDrop OpenDropDevice = OpenDrop(); 
 Drop *myDrop = OpenDropDevice.getDrop();
@@ -62,7 +68,7 @@ void handleSerial();
 void setup() {
   Serial.begin(115200);
   menu_idle_hook = handleSerial;   // keep COM port working while the menu is open
-  OpenDropDevice.begin("c10");
+  OpenDropDevice.begin(FW_VERSION);
 
   ControlBytesOut[23]=OpenDropDevice.get_ID();
   Serial.println(OpenDropDevice.get_ID());
@@ -78,7 +84,7 @@ void setup() {
  
   OpenDropDevice.drive_Fluxels();
   OpenDropDevice.update_Display();
-  Serial.println("Welcome to OpenDrop");
+  Serial.println("Welcome to OpenDrop (nanoSYD fw " FW_VERSION "+" FW_UPSTREAM ")");
 
   myDrop->begin(7,4);
   OpenDropDevice.update();

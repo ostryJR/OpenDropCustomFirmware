@@ -16,7 +16,7 @@ Maintained by Mikolaj Ostrowski for nanoSYD. Remote: `github.com/ostryJR/OpenDro
 - **The Arduino IDE builds from `~/Documents/Arduino/libraries/{OpenDrop,OpenDropAudio}`, not from the repo.** After editing anything in `customFirmware/Libraries/OpenDrop*`, copy the changed files there (`diff -rq` to check sync).
 - No Arduino toolchain on this Mac → changes can't be compiled or flashed here; the user builds/flashes in the IDE. Say so when reporting.
 - Sketch folder name must match the `.ino` name (Arduino rule).
-- Displayed version = `version_str` (`OpenDrop.cpp`, "V42.11.") + code passed to `OpenDropDevice.begin("c10")` in the sketch.
+- **Versioning: SemVer.** Single source: `FW_VERSION` in the sketch (`FW_UPSTREAM` = GaudiLabs base, "gaudi.42.11"). It is passed to `OpenDropDevice.begin()`, shown as `nS v1.0.0` on the splash and `MODIFIED FW v1.0.0` on the nanoSYD screen, and printed in the serial welcome line. MAJOR = protocol break for apps, MINOR = compatible feature, PATCH = fix. Bump it with every release; tag `vX.Y.Z` in git once tested on hardware. `version_str` in `OpenDrop.cpp` is the old upstream value, no longer displayed.
 
 ## What's custom vs stock (all on `main`)
 - **Serial control** (32-byte frames, 24-byte reply): HV voltage `[13]`, freq/10 `[14]`, DC/AC `[15]` (0 = keep), feedback `[8]`, save-to-flash `[9]=1`, OLED message `[1]` (length N + N ASCII bytes after the frame, 255 = clear). Details in `SERIAL_PROTOCOL.md`.
@@ -33,5 +33,5 @@ Maintained by Mikolaj Ostrowski for nanoSYD. Remote: `github.com/ostryJR/OpenDro
 - Keep changes minimal and in the existing (old Arduino) code style; this firmware is flashed to lab hardware.
 - OLED text: built-in 6x8 font, ~21 chars per line at size 1; check that text fits (wrap happens at x+6 >= 128).
 - Credit header (nanoSYD / Syddansk Universitet / Mikolaj Ostrowski) is in the sketch, `OpenDrop.cpp/.h`, `OpenDropAudio.cpp`; keep it.
-- "commit and everything" (user's phrase) = commit, fast-forward the feature branch into `main`, push `main` to origin.
+- Shipping is `/ship` (or "commit and everything"). Project checks before shipping: `customFirmware/Libraries/OpenDrop*` matches `~/Documents/Arduino/libraries/` (`diff -rq`), `SERIAL_PROTOCOL.md` matches the code, and a `vX.Y.Z` tag must equal `FW_VERSION`.
 - Show OLED screens as half-block text art in the chat (not PNG files), rendered from the real glcdfont + splash bitmap.

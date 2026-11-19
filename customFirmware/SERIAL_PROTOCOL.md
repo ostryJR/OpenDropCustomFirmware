@@ -1,7 +1,7 @@
 # OpenDrop custom firmware — serial protocol (for the PC app)
 
 USB CDC serial, **115200 baud, 8N1**. Binary, no framing or sync bytes: the device simply counts bytes.
-On boot the device prints its ID as text plus `"Welcome to OpenDrop"` — flush the input buffer after opening the port.
+On boot the device prints its ID as text plus `"Welcome to OpenDrop (nanoSYD fw 1.0.0+gaudi.42.11)"` — the app can parse the firmware version (SemVer) from this line, then flush the input buffer. A different MAJOR version means an incompatible protocol.
 
 ## Request: app → device, exactly 32 bytes per frame (+ optional text)
 

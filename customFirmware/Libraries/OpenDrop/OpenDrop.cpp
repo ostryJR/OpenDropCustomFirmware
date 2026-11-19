@@ -18,7 +18,7 @@
 #include "adapterI2C.h"
 #include "FlashStorage.h"
 
-char version_str[] = "V42.11." ;
+char version_str[] = "V42.11." ;   // upstream GaudiLabs base version (not shown; see FW_UPSTREAM in the sketch)
 
 uint8_t OpenDropID=0;     // defined in code
 
@@ -729,7 +729,7 @@ void OpenDrop::begin(const char code_str[]) {
  display.setTextSize(1);
  display.setCursor(1,55);
   display.setTextColor(WHITE);
-  display.print(version_str);
+  display.print("nS v");                  // custom firmware version (SemVer), passed in by the sketch
   display.println(code_str);
   display.setCursor(7,45);                 // free area under "WELCOME" on the splash
   display.print("MODIFIED FW");
@@ -759,7 +759,7 @@ void OpenDrop::begin(const char code_str[]) {
   // Second boot screen: nanoSYD credit (stays up until the first update_Display)
   display.setTextColor(WHITE);
   display.setTextSize(1);
-  display.setCursor(13,2);   display.print("MODIFIED FIRMWARE");
+  display.setCursor(10,2);   display.print("MODIFIED FW v"); display.print(code_str);
   display.setCursor(28,12);  display.print("developed by");
   display.setTextSize(2);
   display.setCursor(22,22);  display.print("nanoSYD");
