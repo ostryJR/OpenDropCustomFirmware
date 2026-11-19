@@ -33,3 +33,5 @@ Maintained by Mikolaj Ostrowski for nanoSYD. Remote: `github.com/ostryJR/OpenDro
 - Keep changes minimal and in the existing (old Arduino) code style; this firmware is flashed to lab hardware.
 - OLED text: built-in 6x8 font, ~21 chars per line at size 1; check that text fits (wrap happens at x+6 >= 128).
 - Credit header (nanoSYD / Syddansk Universitet / Mikolaj Ostrowski) is in the sketch, `OpenDrop.cpp/.h`, `OpenDropAudio.cpp`; keep it.
+- "commit and everything" (user's phrase) = commit, fast-forward the feature branch into `main`, push `main` to origin.
+- Show OLED screens as half-block text art in the chat (not PNG files), rendered from the real glcdfont + splash bitmap.
