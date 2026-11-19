@@ -2,6 +2,10 @@
   Basic Code to run the OpenDrop V4.1, Research platfrom for digital microfluidics
   Object codes are defined in the OpenDrop.h library
   Written by Urs Gaudenz from GaudiLabs, 2021
+
+  Custom version developed by nanoSYD, Syddansk Universitet (University of Southern Denmark)
+  by Mikolaj Ostrowski - mikolaj.p.ostrowski@gmail.com - github.com/ostryJR
+  (serial control of HV/feedback/messages, flash save, menu save prompt, boot screens, sounds)
 */
 
 #include <SPI.h>
@@ -47,10 +51,14 @@ extern uint16_t Voltage_set;   // from OpenDrop.cpp
 extern uint32_t AC_frequency;
 extern boolean  AC_flag;
 extern boolean  HV_set_ok;
+
+bool in_menu = false;          // true while the device menu is open
+void handleSerial();
   
 // the setup function runs once when you press reset or power the board
 void setup() {
   Serial.begin(115200);
+  menu_idle_hook = handleSerial;   // keep COM port working while the menu is open
   OpenDropDevice.begin("c10");
 
   ControlBytesOut[23]=OpenDropDevice.get_ID();
@@ -77,8 +85,10 @@ void setup() {
 }
 
 
-void loop() {
-    if (Serial.available()>0)             //receive data from App
+// Handles all pending serial bytes; also called from inside Menu() via menu_idle_hook
+void handleSerial() {
+    if (Serial.available()==0) { digitalWrite(LED_Rx_pin,LOW); return; }
+    while (Serial.available()>0)          //receive data from App (all available bytes)
     {
       readbyte=Serial.read();
       if (x<FluxlPad_width)
@@ -98,7 +108,7 @@ void loop() {
          }
          OpenDropDevice.set_Fluxels(FluxCom);
          OpenDropDevice.drive_Fluxels();
-         OpenDropDevice.update_Display();
+         if (!in_menu) OpenDropDevice.update_Display();   // menu owns the screen while open
 
          if ((ControlBytesIn[0]&0x2)&&(Magnet1_state==false)) {
           Magnet1_state=true;
@@ -131,17 +141,19 @@ void loop() {
          OpenDropDevice.set_Temp_2(ControlBytesIn[11]);
          OpenDropDevice.set_Temp_3(ControlBytesIn[12]);
          
-         OpenDropDevice.show_feedback(ControlBytesIn[8]);
+         if (!in_menu) {                    // settings bytes ignored while the menu is editing them
+           OpenDropDevice.show_feedback(ControlBytesIn[8]);
 
-         // Remote HV settings: [13]=volts, [14]=Hz/10, [15]=1 DC / 2 AC; 0 = keep current
-         uint16_t new_v  = ControlBytesIn[13] ? constrain(ControlBytesIn[13], 50, 240) : Voltage_set;
-         uint16_t new_f  = ControlBytesIn[14] ? constrain(ControlBytesIn[14]*10, 100, 1000) : AC_frequency;
-         bool     new_ac = ControlBytesIn[15] ? (ControlBytesIn[15] == 2) : AC_flag;
-         if (new_v != Voltage_set || new_f != AC_frequency || new_ac != AC_flag) {
-           OpenDropDevice.set_voltage(new_v, new_ac, new_f);
-           HV_set_ok = false;   // same as Menu(): avoid false UNDER VOLTAGE while HV settles
+           // Remote HV settings: [13]=volts, [14]=Hz/10, [15]=1 DC / 2 AC; 0 = keep current
+           uint16_t new_v  = ControlBytesIn[13] ? constrain(ControlBytesIn[13], 50, 240) : Voltage_set;
+           uint16_t new_f  = ControlBytesIn[14] ? constrain(ControlBytesIn[14]*10, 100, 1000) : AC_frequency;
+           bool     new_ac = ControlBytesIn[15] ? (ControlBytesIn[15] == 2) : AC_flag;
+           if (new_v != Voltage_set || new_f != AC_frequency || new_ac != AC_flag) {
+             OpenDropDevice.set_voltage(new_v, new_ac, new_f);
+             HV_set_ok = false;   // same as Menu(): avoid false UNDER VOLTAGE while HV settles
+           }
+           if (ControlBytesIn[9] == 1) OpenDropDevice.save_settings();   // "Save to device" from app
          }
-         if (ControlBytesIn[9] == 1) OpenDropDevice.save_settings();   // "Save to device" from app
          
          ControlBytesOut[17]=OpenDropDevice.get_Temp_L_1();
          ControlBytesOut[18]=OpenDropDevice.get_Temp_H_1();
@@ -154,7 +166,11 @@ void loop() {
          x=0;
         };
     } 
-    else digitalWrite(LED_Rx_pin,LOW);  
+}
+
+
+void loop() {
+    handleSerial();
       del_counter--;
 
    if (millis()-del_counter>2000) {                 //update Display
@@ -168,7 +184,9 @@ void loop() {
   if (!SWITCH_state)                    //activate Menu
     { 
      OpenDropAudio.playMe(1);
+     in_menu = true;
      Menu(OpenDropDevice);
+     in_menu = false;
      OpenDropDevice.update_Display();
      del_counter2=200;
      }

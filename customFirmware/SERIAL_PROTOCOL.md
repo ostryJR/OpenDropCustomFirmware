@@ -29,6 +29,14 @@ Rules:
 - Message: max **20 characters shown** (longer text is read but truncated). Plain ASCII only (no accents). Message stays until replaced or cleared (`ctrl[1]=255`, no trailing bytes). "INSERT CARTRIDGE"/"UNDER VOLTAGE!" warnings are drawn over it.
 - The N text bytes must always be sent in full, otherwise the next frame will be misaligned.
 
+## While the device menu is open
+
+The device keeps handling frames and sending replies while someone uses the on-device menu, but:
+- Fluxels, magnets (`ctrl[0]`), temperatures (`ctrl[10..12]`) and the 24-byte reply work as normal.
+- Feedback (`ctrl[8]`), Save (`ctrl[9]`) and HV (`ctrl[13..15]`) are **ignored** — the menu is editing those settings. Send them again after the menu closes (normal frames do this anyway for feedback).
+- A message (`ctrl[1]`) is accepted and stored; it appears once the menu closes.
+- Electrode feedback bits in the reply are not refreshed while the menu is open.
+
 ## Response: device → app, exactly 24 bytes after every frame
 
 | Byte(s) | Meaning |

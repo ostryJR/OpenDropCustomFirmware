@@ -1,6 +1,9 @@
 /*--------------------------------------------------------------------
   This file is part of the OpenDrop library
   by Urs Gaudenz, GaudiLabs 2016
+
+  Custom version developed by nanoSYD, Syddansk Universitet (University of Southern Denmark)
+  by Mikolaj Ostrowski - mikolaj.p.ostrowski@gmail.com - github.com/ostryJR
   --------------------------------------------------------------------*/
 
 
@@ -117,3 +120,4 @@ class OpenDrop
 
 
 void Menu(OpenDrop &theOpenDrop);
+extern void (*menu_idle_hook)(void);   // called repeatedly while Menu() is open (e.g. serial handling)

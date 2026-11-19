@@ -1,6 +1,9 @@
 /*--------------------------------------------------------------------
   This file is part of the OpenDrop library
   by Urs Gaudenz, GaudiLabs 2022
+
+  Custom version developed by nanoSYD, Syddansk Universitet (University of Southern Denmark)
+  by Mikolaj Ostrowski - mikolaj.p.ostrowski@gmail.com - github.com/ostryJR
   --------------------------------------------------------------------*/
 
 
@@ -49,6 +52,8 @@ long VOLTAGE_set_value;
 bool sound=sound_flag;
 bool feedback=feedback_flag;
 static char msg_text[21] = "";   // remote message banner, max 20 chars
+void (*menu_idle_hook)(void) = NULL;   // set by the sketch, run inside Menu() loops
+static inline void menu_idle(void) { if (menu_idle_hook) menu_idle_hook(); }
 
 
 
@@ -1361,6 +1366,7 @@ bool but_release=false;
 
 while (!confirm)
 {
+menu_idle();                                 // keep serial running while in menu
 display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE,BLACK);
@@ -1440,9 +1446,10 @@ bool changed = (AC_state!=AC_flag) || (v!=Voltage_set) || (f!=(int)AC_frequency)
 bool save=true;                              // YES preselected
 
 if (changed) {
-  while(!digitalRead(SW1_pin));              // wait until the exit press is released
+  while(!digitalRead(SW1_pin)) menu_idle();  // wait until the exit press is released
   delay(50);                                 // debounce
   while (true) {
+    menu_idle();
     display.clearDisplay();
     display.setTextColor(WHITE,BLACK);
     display.setCursor(22,14);
@@ -1469,7 +1476,7 @@ if (changed && save) {
     theOpenDrop.save_settings();             // writes flash (voltage clamped to 240 V)
     HV_set_ok=false;
     }
- while(!digitalRead(SW1_pin));
+ while(!digitalRead(SW1_pin)) menu_idle();
 }
 
 

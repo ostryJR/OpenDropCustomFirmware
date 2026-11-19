@@ -18,7 +18,6 @@
 #include "Arduino.h"
 #include "Print.h"
 
-#include <SD.h>
 #include <SPI.h>
 
 
